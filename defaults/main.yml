@@ -1,0 +1,25 @@
+---
+
+# the $RED5_HOME base path
+red5_home: "/opt/red5"
+
+# red5 user and group
+red5_user: red5
+red5_group: red5
+
+# the url from which to download red5
+red5_download_url: https://github.com/Red5/red5-server/releases/download/v1.0.8-RELEASE/red5-server-1.0.8-RELEASE.tar.gz
+# name of the red5 server within the pkg, will become $RED5_HOME
+red5_pkg_name: "red5-server"
+
+# should contain http[s] urls to .tar.gz files containing red5
+# compatible webapps, extracted to: $RED5_HOME/webapps
+red5_webapps: []
+  # -
+  #   name: avalon
+  #   url: "https://github.com/avalonmediasystem/avalon-installer/raw/master/modules/avalon/files/red5/red5-avalon.tar.gz"
+  #   properties:
+  #     "webapp.contextPath": "/avalon"
+  #     "webapp.virtualHosts": "*"
+  #     "avalon.serverUrl": "http://avalon.example.edu/"
+  #     "avalon.streamBase": "{{ red5_home }}/webapps/avalon/streams"

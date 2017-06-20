@@ -1,0 +1,26 @@
+---
+
+- name: create red5 user
+  user:
+    name: "{{ red5_user }}"
+    state: present
+    group: "red5"
+  tags:
+    - red5
+
+- name: create red5 group
+  group:
+    name: "{{ red5_group }}"
+    state: "present"
+  tags:
+    - red5
+
+- name: download red5
+  unarchive:
+    src: "{{ red5_download_url }}"
+    dest: "{{ red5_home }}"
+    owner: "{{ red5_user }}"
+    group: "{{ red5_group }}"
+    remote_src: true
+  tags:
+    - red5
