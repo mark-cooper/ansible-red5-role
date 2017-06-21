@@ -1,10 +1,26 @@
 ---
 
-- name: create red5 user
-  user:
-    name: "{{ red5_user }}"
-    state: present
-    group: "red5"
+- name: check if red5 has been downloaded
+  local_action: >
+    stat path="{{ playbook_dir }}/downloads/{{ red5_pkg_name }}"
+  become: no
+  register: red5_download
+  tags:
+    - red5
+
+- name: download red5
+  local_action: >
+    unarchive src="{{ red5_download_url }}" dest="{{ playbook_dir }}/downloads/" remote_src=true
+  become: no
+  when: not red5_download.stat.exists
+  tags:
+    - red5
+
+- name: download red5 webapps
+  local_action: >
+    unarchive src="{{ item.url }}" dest="{{ playbook_dir }}/downloads/" remote_src=true
+  become: no
+  with_items: "{{ red5_webapps }}"
   tags:
     - red5
 
@@ -15,12 +31,74 @@
   tags:
     - red5
 
-- name: download red5
-  unarchive:
-    src: "{{ red5_download_url }}"
+- name: create red5 user
+  user:
+    name: "{{ red5_user }}"
+    state: present
+    group: "{{ red5_group }}"
+  tags:
+    - red5
+
+- name: set red5 home in environment
+  lineinfile:
+    path: "/etc/environment"
+    line: "RED5_HOME={{ red5_home }}"
+  tags:
+    - red5
+
+- name: create red5 home
+  file:
+    path: "{{ red5_home }}"
+    state: directory
+    owner: "{{ red5_user }}"
+    group: "{{ red5_group }}"
+  tags:
+    - red5
+
+- name: check if red5 already transferred
+  stat:
+    path: "{{ red5_home }}/red5.sh"
+  register: red5_transferred
+  tags:
+    - red5
+
+- name: transfer red5 to server (zzz)
+  copy:
+    src: "{{ playbook_dir }}/downloads/{{ red5_pkg_name }}/"
     dest: "{{ red5_home }}"
     owner: "{{ red5_user }}"
     group: "{{ red5_group }}"
-    remote_src: true
+  when: not red5_transferred.stat.exists
+  tags:
+    - red5
+
+- name: create red5 webapp directories
+  file:
+    path: "{{ red5_home }}/webapps/{{ item.name }}"
+    state: directory
+    owner: "{{ red5_user }}"
+    group: "{{ red5_group }}"
+  with_items: "{{ red5_webapps }}"
+  tags:
+    - red5
+
+- name: transfer webapps to server
+  copy:
+    src: "{{ playbook_dir }}/downloads/{{ item.pkg_name }}/"
+    dest: "{{ red5_home }}/webapps/{{ item.name }}"
+    owner: "{{ red5_user }}"
+    group: "{{ red5_group }}"
+  with_items: "{{ red5_webapps }}"
+  tags:
+    - red5
+
+- name: set the red5-web.properties
+  template:
+    src: red5-web.properties.j2
+    dest: "{{ red5_home }}/webapps/{{ item.name }}/WEB-INF/red5-web.properties"
+    owner: "{{ red5_user }}"
+    group: "{{ red5_group }}"
+    backup: true
+  with_items: "{{ red5_webapps }}"
   tags:
     - red5

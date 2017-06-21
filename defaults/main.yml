@@ -17,6 +17,7 @@ red5_pkg_name: "red5-server"
 red5_webapps: []
   # -
   #   name: avalon
+  #   pkg_name: avalon
   #   url: "https://github.com/avalonmediasystem/avalon-installer/raw/master/modules/avalon/files/red5/red5-avalon.tar.gz"
   #   properties:
   #     "webapp.contextPath": "/avalon"
